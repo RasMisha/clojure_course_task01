@@ -8,15 +8,16 @@
 (defn parse-link [r-class-tag]
   (:href (first (filter map? (first (filter is-link r-class-tag))))))
 
+
 (defn dfs [data]
   (if (= "r" (:class (first (filter map? data))))
     (parse-link data)
-    (loop [deep-result (map dfs (filter vector? data))
-           final-result []]
-      (if (empty? deep-result)
-        final-result
-        (recur (next deep-result)
-          (let [element (first deep-result)] (if (vector?  element) (into final-result element) (conj final-result element))))))))
+    (reduce (fn [result-vector value]
+              (if (vector? value)
+                (into result-vector value)
+                (conj result-vector value)))
+      [] (map dfs (filter vector? data)))))
+
 
 (defn get-links []
   " 1) Find all elements containing {:class \"r\"}.
